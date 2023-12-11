@@ -2,8 +2,9 @@ package sgr
 
 import (
 	"fmt"
-	"io"
 	"strings"
+
+	"github.com/halimath/termx/csi"
 )
 
 // SGR defines a type for Select Graphic Rendition instructions.
@@ -16,7 +17,7 @@ const (
 
 // Escape creates a CSI escape sequence activating all rendition instructions given in s.
 func Escape(s SGR) string {
-	return fmt.Sprintf("\x1B[%s%c", s, sgrTerminator)
+	return fmt.Sprintf("%s%s%c", csi.CSI, s, sgrTerminator)
 }
 
 // Join joins all SGRs in s together.
@@ -25,7 +26,7 @@ func Join(s ...SGR) SGR {
 		return ""
 	}
 
-	if len(s) == 0 {
+	if len(s) == 1 {
 		return s[0]
 	}
 
@@ -115,11 +116,13 @@ func rgbColorValue(r, g, b int) int {
 	return 16 + 36*r + 6*g + b
 }
 
-func FgTrueColor(r, g, b byte) SGR {
+// FgTrueColor creates a SGR that sets the foreground color to the true color value given with r, g, b.
+func FgTrueColor(r, g, b uint8) SGR {
 	return SGR(fmt.Sprintf("38;2;%d;%d;%d", r, g, b))
 }
 
-func BgTrueColor(r, g, b byte) SGR {
+// BgTrueColor creates a SGR that sets the background color to the true color value given with r, g, b.
+func BgTrueColor(r, g, b uint8) SGR {
 	return SGR(fmt.Sprintf("48;2;%d;%d;%d", r, g, b))
 }
 
@@ -130,31 +133,9 @@ func Format(sgr SGR, s string) string {
 	buf.WriteString(Escape(sgr))
 	buf.WriteString(s)
 	buf.WriteString(Escape(ResetAll))
-
 	return buf.String()
 }
 
 func Formatf(sgr SGR, format string, args ...any) string {
 	return Format(sgr, fmt.Sprintf(format, args...))
-}
-
-// Print writes s formatted using sgr to w.
-func Print(w io.Writer, sgr SGR, s string) (int, error) {
-	return io.WriteString(w, Format(sgr, s))
-}
-
-// Printf writes applies args to format and writes the result to w formatted with sgr.
-func Printf(w io.Writer, sgr SGR, format string, args ...any) (int, error) {
-	n, err := io.WriteString(w, Escape(sgr))
-	if err != nil {
-		return n, err
-	}
-
-	n2, err := fmt.Fprintf(w, format, args...)
-	if err != nil {
-		return n + n2, err
-	}
-
-	n3, err := io.WriteString(w, Escape(ResetAll))
-	return n + n2 + n3, err
 }

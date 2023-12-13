@@ -1,3 +1,17 @@
+// Package csi contains constants and functions to produce _control sequence introducer_ strings that instruct
+// a terminal to perform special operations, i.e. moving the cursor, clearing the screen and so on.
+// Static (parameter less) CSI are defined as constants, dynamic (parameterized) CSI are defined as functions
+// returning strings. These sequences can be written to a terminal or any other buffer/file and be output.
+// Note that the sequences contain special characters (most notably the escape character '\x1b') which can
+// cause scrabled output when displayed by a device that does not interpret the sequences.
+//
+// In addition this package contains some query operations. These are defined as functions that receive an
+// io.ReadWriter and return the query's response.
+//
+// All sequences defined in this package are based on the xterm definitions and may not work on certain
+// devices. As almost all of the terminal emulations in use nowadays are compatible with xterm (to some
+// extend, at least), this should not be considered a limitation. But be warned that some sequences may not
+// work as intended when sent to a VT100 terminal.
 package csi
 
 import (

@@ -1,3 +1,13 @@
+// Package sgr contains definitions for _select graphic rendition_ instructions that, when applied to some
+// string, instruct the terminal emulator to select different colors, fonts, decorations, ... for the display
+// of the string.
+//
+// The package defines a type SGR which is just a string. SGRs are defined as constants (for static, parameter
+// less) instructions or factory functions for parameterized instructions (such as RGB colors). Multiple
+// instructions can be joined together to form a composite SGR. The Join function performs this task.
+// When applied to a string (i.e. via the Format function) the resulting string can be written to a terminal
+// or some buffer as a plain string. Keep in mind that the sequences contain special characters which can
+// scramble the ouput when send to a device that does not interpret them.
 package sgr
 
 import (
@@ -126,6 +136,7 @@ func BgTrueColor(r, g, b uint8) SGR {
 	return SGR(fmt.Sprintf("48;2;%d;%d;%d", r, g, b))
 }
 
+// Format applies sgr to s and returns the resulting string.
 func Format(sgr SGR, s string) string {
 	var buf strings.Builder
 	buf.Grow(len(s) + len(sgr) + len(ResetAll) + 6)
@@ -136,6 +147,7 @@ func Format(sgr SGR, s string) string {
 	return buf.String()
 }
 
+// Formatf works like Format with fmt.Sprintf applied to format and args before.
 func Formatf(sgr SGR, format string, args ...any) string {
 	return Format(sgr, fmt.Sprintf(format, args...))
 }

@@ -29,6 +29,27 @@ go get github.com/halimath/termx
 
 # Usage
 
+The `termx` package provides a type `Terminal` which provides methods to deal with the terminal. Most of these
+methods are implemented using the `"golang.org/x/term"` package. The `Terminal` type provides methods to
+
+* enter and exit raw mode
+* enter and exit _CA_ mode - which provides extended input capabilitites
+* reading and writing of strings and raw bytes
+* reading of `keypress`es which interpretes the byte sequences to reconstruct which key has been pressed
+
+This module also provides a package `sgr`, which contains definitions for _Select Graphic Rendition_
+which allows applications to format colored text or otherwise styled text output.
+
+This module also provides a package `csi` which contains _Control Sequence Introducer_ definitions that 
+enable advanced terminal output operations, such as
+
+* moving the cursor
+* clearing (parts of) the screen
+* setting the terminal's window title
+* querying terminal information (i.e. cursor position, background color)
+
+See the [`examples`](./examples) directory for small applications demonstrating how to use this module.
+
 # Useful resources
 
 A lot of information about the escape sequences and their treatment by different terminal applications has

@@ -2,6 +2,7 @@ package csi
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -43,7 +44,7 @@ const rgbPrefix = "rgb:"
 func GetBackgroundColor(rw io.ReadWriter) (r, g, b uint16, err error) {
 	c, err := execQuery(rw, queryBackgroundColor, 128, func(res []byte) (rgb [3]uint16, err error) {
 		if !bytes.HasPrefix(res, []byte(OSC)) || !(bytes.HasSuffix(res, []byte(StringTerminator)) || bytes.HasSuffix(res, []byte{'\a'})) {
-			err = fmt.Errorf("invalid terminal response for get background color: %v", string(res[1:]))
+			err = fmt.Errorf("%w: get background color: %v", ErrInvalidTerminalResponse, string(res[1:]))
 			return
 		}
 
@@ -51,13 +52,13 @@ func GetBackgroundColor(rw io.ReadWriter) (r, g, b uint16, err error) {
 		parts := strings.Split(s, ";")
 
 		if len(parts) != 2 || parts[0] != "11" || !strings.HasPrefix(parts[1], rgbPrefix) {
-			err = fmt.Errorf("invalid terminal response for get background color: %v", string(res[1:]))
+			err = fmt.Errorf("%w: get background color: %v", ErrInvalidTerminalResponse, string(res[1:]))
 			return
 		}
 
 		components := strings.Split(strings.TrimPrefix(parts[1], rgbPrefix), "/")
 		if len(components) != 3 {
-			err = fmt.Errorf("invalid terminal response for get background color: %v", string(res[1:]))
+			err = fmt.Errorf("%w: get background color: %v", ErrInvalidTerminalResponse, string(res[1:]))
 			return
 		}
 
@@ -75,6 +76,9 @@ func GetBackgroundColor(rw io.ReadWriter) (r, g, b uint16, err error) {
 
 	return c[0], c[1], c[2], err
 }
+
+// ErrInvalidTerminalResponse is a sentinel error value returned from queries issued to the terminal.
+var ErrInvalidTerminalResponse = errors.New("invalid terminal response")
 
 // queryHandler is used to define functions that handle terminal query responses.
 type queryHandler[T any] func([]byte) (T, error)

@@ -1,6 +1,7 @@
 package csi
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"strconv"
@@ -59,8 +60,8 @@ const getCursorPositionQuery = "\x1B[6n"
 // according to ANSI specs coordinates are 1 based, so the upper left corner is (1, 1).
 func GetCursorPosition(rw io.ReadWriter) (x, y int, err error) {
 	p, err := execQuery(rw, getCursorPositionQuery, 64, func(res []byte) (p position, err error) {
-		if len(res) < 6 || res[0] != '\x1B' || res[1] != '[' || res[len(res)-1] != 'R' {
-			err = fmt.Errorf("invalid terminal response for get cursor: %v", res)
+		if len(res) < 6 || !bytes.HasPrefix(res, []byte(CSI)) || res[len(res)-1] != 'R' {
+			err = fmt.Errorf("%w: get cursor: %v", ErrInvalidTerminalResponse, err)
 			return
 		}
 
@@ -75,12 +76,13 @@ func GetCursorPosition(rw io.ReadWriter) (x, y int, err error) {
 		}
 
 		if split == 0 {
-			err = fmt.Errorf("invalid terminal response for get cursor: %v", res)
+			err = fmt.Errorf("%w: get cursor: %v", ErrInvalidTerminalResponse, err)
 			return
 		}
 
 		p.y, err = strconv.Atoi(string(s[:split]))
 		if err != nil {
+			err = fmt.Errorf("%w: get cursor: %v", ErrInvalidTerminalResponse, err)
 			return
 		}
 

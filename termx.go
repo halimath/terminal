@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/halimath/termx/keypress"
+	"github.com/halimath/termx/input"
 	"golang.org/x/term"
 )
 
@@ -26,7 +26,8 @@ func IsTruecolorSupported() bool {
 // Terminal implements both read and write access to the terminal. By default, it runs on STDIN/STDOUT but can
 // be configured to work with other file descriptors as well.
 type Terminal struct {
-	r, w *os.File
+	r, w        *os.File
+	inputReader *input.Reader
 
 	rawModeRestoreState *term.State
 }
@@ -40,8 +41,9 @@ func New() *Terminal {
 // point to the same os.File.
 func NewWithFile(r, w *os.File) *Terminal {
 	t := Terminal{
-		r: r,
-		w: w,
+		r:           r,
+		w:           w,
+		inputReader: &input.Reader{Reader: r},
 	}
 
 	return &t
@@ -95,25 +97,12 @@ func (t *Terminal) Read(buf []byte) (int, error) {
 	return t.r.Read(buf)
 }
 
-// ReadKeyPress reads a single keypress from the t. It returns the
-// parsed keypress (or nil) as well as the actual bytes read. If an
-// error occurs the parsed keypress is nil. If reading was successful
-// but parsing the read bytes produced an error, the bytes are returned
-// for client code to handle them manually.
-func (t *Terminal) ReadKeyPress() (keypress.KeyPress, []byte, error) {
-	var buf [4]byte
-
-	n, err := t.Read(buf[:])
-	if err != nil {
-		return nil, nil, err
-	}
-
-	k, err := keypress.Decode(buf[:n])
-	if err != nil {
-		return nil, buf[:n], err
-	}
-
-	return k, buf[:n], nil
+// ReadInputEvent reads a single input event from r. It returns the parsed event (or nil) as well as the actual
+// bytes read. If an error occurs during reading both event and buffer are nil. If reading was successful
+// but parsing the read bytes produced an error, the read bytes are returned for client code to handle them
+// manually but event is nil. In any case, the returned error is non nil.
+func (t *Terminal) ReadInputEvent() (input.Event, []byte, error) {
+	return t.inputReader.ReadInputEvent()
 }
 
 // Size returns the size of the terminal.
@@ -130,15 +119,15 @@ func (t *Terminal) WriteString(s string) (n int, err error) {
 // Print is a convenient shortcut to calling
 //
 //	fmt.Fprint(t, arg)
-func (t *Terminal) Print(arg any) (int, error) {
-	return fmt.Fprint(t, arg)
+func (t *Terminal) Print(arg ...any) (int, error) {
+	return fmt.Fprint(t, arg...)
 }
 
 // Print is a convenient shortcut to calling
 //
 //	fmt.Fprint(t, arg)
-func (t *Terminal) Println(arg any) (int, error) {
-	return fmt.Fprintln(t, arg)
+func (t *Terminal) Println(arg ...any) (int, error) {
+	return fmt.Fprintln(t, arg...)
 }
 
 func (t *Terminal) SuppressSGR() bool { return !t.IsTerminal() }

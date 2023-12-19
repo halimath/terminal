@@ -32,11 +32,24 @@ const (
 
 	ResetTerminal = ESC + "c" // Reset all terminal attributes to their default
 
-	// Commands to enter/exit CA mode, a.k.a. as CUP mode. See the terminfo documentation on smcup.
-	EnterCaMode = CSI + "?1049h"
-	ExitCaMode  = CSI + "?1049l"
+	// Commands to use alternate screen buffer. terminfo calls this CUP mode. See the terminfo
+	// documentation on smcup and rmcup.
+	//
+	// In alternate screen buffer mode no scrolling is possible - the buffer has the exact size of the
+	// screen. Thus, applications using alternate screen buffers will receive keypresses for scrolling
+	// keys such as PgUp, PgDown, Home and End.
+	//
+	// It is recommended to switch to an alternate buffer at the very beginning of the application and return
+	// to main buffer as one of the very last operations.
+	UseAlternateScreenBuffer = CSI + "?1049h" // Switches to a new alternate screen buffer
+	UseMainScreenBuffer      = CSI + "?1049l" // Switches to the main buffer
 
-	// Clear commands - all these are CSI sequences to be written to the terminal
+	// Sequences to enable/disable application mode. In application mode, the terminal sends different
+	// control sequences.
+	EnableApplicationMode  = CSI + "?1h"
+	DisableApplicationMode = CSI + "?1l"
+
+	// Commands to clear certain areas of the screen
 	ClearScreen       = CSI + "2J" // Clear whole screen
 	ClearLine         = CSI + "2K" // Clear current line
 	ClearAfterCursor  = CSI + "J"  // Clear everything after the cursor

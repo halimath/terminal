@@ -23,6 +23,8 @@ func enter(fd uintptr) (*State, error) {
 		return nil, err
 	}
 
+	oldState := State{state{consoleMode}}
+
 	consoleMode &^= windows.ENABLE_ECHO_INPUT | windows.ENABLE_PROCESSED_INPUT | windows.ENABLE_LINE_INPUT
 	consoleMode |= windows.ENABLE_PROCESSED_OUTPUT | windows.ENABLE_VIRTUAL_TERMINAL_INPUT
 
@@ -30,7 +32,7 @@ func enter(fd uintptr) (*State, error) {
 		return nil, err
 	}
 
-	return &State{state{consoleMode}}, nil
+	return &oldState, nil
 }
 
 func restore(fd uintptr, state *State) error {

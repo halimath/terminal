@@ -2,11 +2,9 @@
 
 package rawmode
 
-import (
-	"golang.org/x/sys/windows"
-)
+import "errors"
 
-var errNotImplemented = errors.New("terminal not implemented for current OS")
+var errNotImplemented = errors.New("rawmode not implemented for current OS")
 
 type state struct {
 }

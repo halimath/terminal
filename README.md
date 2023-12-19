@@ -37,19 +37,19 @@ The `terminal` package provides a type `Terminal` which provides methods to deal
 The `Terminal` type provides methods to
 
 * enter and exit raw mode
-* reading and writing of strings and raw bytes
-* reading of `input.Event`s which decode byte sequences into key presses and mouse events
+* read and write strings, raw bytes as well as control sequences
+* read `input.Event`s which decode byte sequences into key presses and mouse events
   
-This module also provides a package `sgr`, which contains definitions for _Select Graphic Rendition_
-which allows applications to format colored text or otherwise styled text output.
-
-This module also provides a package `csi` which contains _Control Sequence Introducer_ definitions that 
+This module provides a package `csi` which contains _Control Sequence Introducer_ definitions that 
 enable advanced terminal output operations, such as
 
 * moving the cursor
 * clearing (parts of) the screen
 * setting the terminal's window title
 * querying terminal information (i.e. cursor position, background color)
+
+This module provides a package `sgr`, which contains definitions for _Select Graphic Rendition_
+which allows applications to format colored text or otherwise styled text output.
 
 See the [`examples`](./examples) directory for small applications demonstrating how to use this module.
 

@@ -14,7 +14,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/halimath/termx/csi"
+	"github.com/halimath/terminal/csi"
 )
 
 // SGR defines a type for Select Graphic Rendition instructions.

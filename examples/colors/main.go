@@ -4,9 +4,9 @@ package main
 import (
 	"fmt"
 
-	"github.com/halimath/termx"
-	"github.com/halimath/termx/csi"
-	"github.com/halimath/termx/sgr"
+	"github.com/halimath/terminal"
+	"github.com/halimath/terminal/csi"
+	"github.com/halimath/terminal/sgr"
 )
 
 var fgColors = []sgr.SGR{
@@ -48,7 +48,7 @@ var bgColors = []sgr.SGR{
 }
 
 func main() {
-	t := termx.New()
+	t := terminal.New()
 
 	if t.IsTerminal() {
 		w, h, err := t.Size()
@@ -87,6 +87,6 @@ func main() {
 	t.Print(csi.MoveCursorBackward(200))
 	t.Print(csi.MoveCursorDown(1))
 
-	fmt.Fprintf(t, "TrueColor [%v]:\t", termx.IsTruecolorSupported())
+	fmt.Fprintf(t, "TrueColor [%v]:\t", terminal.IsTruecolorSupported())
 	sgr.Print(t, sgr.Join(sgr.BgTrueColor(120, 0, 0), sgr.FgTrueColor(0, 120, 120)), "This should be printed green on red")
 }

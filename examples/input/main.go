@@ -3,10 +3,10 @@ package main
 import (
 	"flag"
 
-	"github.com/halimath/termx"
-	"github.com/halimath/termx/csi"
-	"github.com/halimath/termx/input"
-	"github.com/halimath/termx/sgr"
+	"github.com/halimath/terminal"
+	"github.com/halimath/terminal/csi"
+	"github.com/halimath/terminal/input"
+	"github.com/halimath/terminal/sgr"
 )
 
 func main() {
@@ -15,7 +15,7 @@ func main() {
 	enableMouse := flag.Bool("mouse", false, "Enable mouse tracking")
 	flag.Parse()
 
-	t := termx.New()
+	t := terminal.New()
 
 	if *useAlternateScreenBuffer {
 		t.Print(csi.UseAlternateScreenBuffer)

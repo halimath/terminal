@@ -1,8 +1,4 @@
-github.com/halimath/expect v0.4.0 h1:MWB7WDtMM325jr9QyNvwUbg9Nlm5LHFsh9tv9ZNCsh0=
-github.com/halimath/expect v0.4.0/go.mod h1:JQW7orDfymPLKrvFgWl12qL2Q6bBXbRDg1S1PMgRI9A=
 github.com/halimath/expect v0.5.0 h1:qdQS3BhO4vb7Qg6kwmfUeNMJx+g72T8PdBj9JECsRJg=
 github.com/halimath/expect v0.5.0/go.mod h1:JQW7orDfymPLKrvFgWl12qL2Q6bBXbRDg1S1PMgRI9A=
-golang.org/x/sys v0.12.0 h1:CM0HF96J0hcLAwsHPJZjfdNzs0gftsLfgKt57wWHJ0o=
-golang.org/x/sys v0.12.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
-golang.org/x/term v0.12.0 h1:/ZfYdc3zq+q02Rv9vGqTeSItdzZTSNDmfTi0mBAuidU=
-golang.org/x/term v0.12.0/go.mod h1:owVbMEjm3cBLCHdkQu9b1opXd4ETQWc3BhuQGKgXgvU=
+golang.org/x/sys v0.15.0 h1:h48lPFYpsTvQJZF4EKyI4aLHaev3CxivZmv7yZig9pc=
+golang.org/x/sys v0.15.0/go.mod h1:/VUhepiaJMQUp4+oa/7Zr1D23ma6VTLIYjOOTFZPUcA=

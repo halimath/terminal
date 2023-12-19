@@ -1,6 +1,7 @@
 package sgr
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/halimath/expect"
@@ -39,7 +40,7 @@ func TestBgRGB(t *testing.T) {
 
 func TestAssertValidRGB(t *testing.T) {
 	defer func() {
-		expect.That(t, is.EqualTo(recover(), "invalid ANSI color: 9;0;0"))
+		expect.That(t, is.EqualTo(fmt.Sprintf("%s", recover()), "invalid ANSI color: 9;0;0"))
 	}()
 
 	assertValidRGB(9, 0, 0)

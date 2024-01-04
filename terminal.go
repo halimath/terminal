@@ -8,6 +8,7 @@ import (
 
 	"github.com/halimath/terminal/input"
 	"github.com/halimath/terminal/rawmode"
+	"github.com/halimath/terminal/sgr"
 )
 
 var (
@@ -77,6 +78,10 @@ func (t *Terminal) ExitRawMode() error {
 // Note that an error may occur after buf has been partially written. In that case, the returned number of
 // bytes represents the number of bytes sucessfully written.
 func (t *Terminal) Write(buf []byte) (int, error) {
+	if !t.IsTerminal() {
+		buf = sgr.Remove(buf)
+	}
+
 	n, err := t.w.Write(buf)
 
 	if err == nil && n < len(buf) {
@@ -128,8 +133,6 @@ func (t *Terminal) Print(arg ...any) (int, error) {
 func (t *Terminal) Println(arg ...any) (int, error) {
 	return fmt.Fprintln(t, arg...)
 }
-
-func (t *Terminal) SuppressSGR() bool { return !t.IsTerminal() }
 
 // Printf is a convenience method adding fmt.Printf support for a *Terminal. Basicall, invoking
 //

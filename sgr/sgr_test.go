@@ -9,7 +9,7 @@ import (
 )
 
 func TestEscape(t *testing.T) {
-	expect.That(t, is.EqualTo(Escape(FgRed), "\x1B[31m"))
+	expect.That(t, is.EqualTo(FgRed.Escape(), "\x1B[31m"))
 }
 
 func TestJoin(t *testing.T) {
@@ -18,14 +18,16 @@ func TestJoin(t *testing.T) {
 		want string
 	}
 
+	base := Bold
+
 	tests := []testCase{
-		{in: []SGR{}, want: ""},
-		{in: []SGR{FgRed}, want: "31"},
-		{in: []SGR{FgRed, BgGreen}, want: "31;42"},
+		{in: []SGR{}, want: "1"},
+		{in: []SGR{FgRed}, want: "1;31"},
+		{in: []SGR{FgRed, BgGreen}, want: "1;31;42"},
 	}
 
 	for _, test := range tests {
-		got := Join(test.in...)
+		got := base.Join(test.in...)
 		expect.That(t, is.EqualTo(got, SGR(test.want)))
 	}
 }
@@ -54,10 +56,42 @@ func TestBgTrueColor(t *testing.T) {
 	expect.That(t, is.EqualTo(BgTrueColor(0, 128, 59), "48;2;0;128;59"))
 }
 
-func TestFormat(t *testing.T) {
-	expect.That(t, is.EqualTo(Format(FgRed, "hello, world"), "\x1B[31mhello, world\x1B[0m"))
+func TestApply(t *testing.T) {
+	expect.That(t, is.EqualTo(FgRed.Apply("hello, world"), "\x1B[31mhello, world\x1B[0m"))
 }
 
-func TestFormatf(t *testing.T) {
-	expect.That(t, is.EqualTo(Formatf(FgRed, "hello, %s", "world"), "\x1B[31mhello, world\x1B[0m"))
+func TestApplyf(t *testing.T) {
+	expect.That(t, is.EqualTo(FgRed.Applyf("hello, %s", "world"), "\x1B[31mhello, world\x1B[0m"))
+}
+
+func TestRemove(t *testing.T) {
+	tests := map[string]string{
+		"foobar":          "foobar",
+		Bold.Apply("foo"): "foo",
+	}
+
+	for in, want := range tests {
+		expect.WithMessage(t, "input %q", in).
+			That(is.EqualTo(string(Remove([]byte(in))), want))
+	}
+}
+
+func BenchmarkRemove_withSGRs(b *testing.B) {
+	s := []byte(Bold.Apply("Hello") + Faint.Apply("world"))
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		Remove(s)
+	}
+}
+
+func BenchmarkRemove_withoutSGRs(b *testing.B) {
+	s := []byte("hello world")
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		Remove(s)
+	}
 }

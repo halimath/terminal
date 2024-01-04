@@ -11,6 +11,7 @@
 package sgr
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 
@@ -26,29 +27,66 @@ const (
 )
 
 // Escape creates a CSI escape sequence activating all rendition instructions given in s.
-func Escape(s SGR) string {
+func (s SGR) Escape() string {
 	return fmt.Sprintf("%s%s%c", csi.CSI, s, sgrTerminator)
 }
 
-// Join joins all SGRs in s together.
-func Join(s ...SGR) SGR {
-	if len(s) == 0 {
-		return ""
-	}
-
-	if len(s) == 1 {
-		return s[0]
-	}
-
+// Join joins s with all SGRs in other and returns a new SGR.
+func (s SGR) Join(others ...SGR) SGR {
 	var b strings.Builder
-	for i, s := range s {
-		if i > 0 {
-			b.WriteByte(sgrSeparator)
-		}
-		b.WriteString(string(s))
+	b.WriteString(string(s))
+
+	for _, o := range others {
+		b.WriteByte(sgrSeparator)
+		b.WriteString(string(o))
 	}
 
 	return SGR(b.String())
+}
+
+// Apply applies s to str and returns the returning string.
+func (s SGR) Apply(str any) string {
+	return s.Escape() + fmt.Sprint(str) + ResetAll.Escape()
+}
+
+// Applyf applies s to the string produced by formatting format with args  and returns the returning string.
+func (s SGR) Applyf(format string, args ...any) string {
+	return s.Apply(fmt.Sprintf(format, args...))
+}
+
+var csiBytes = []byte(csi.CSI)
+
+// Remove removes all SGRs on b and returns the bare bytes.
+func Remove(b []byte) []byte {
+	// First, see if there are SGRs as part of the string. If not, its safe
+	// to return s directly which improves memory cost and thus the overall
+	// performance of this function.
+	if !bytes.Contains(b, csiBytes) {
+		return b
+	}
+
+	var buf bytes.Buffer
+	buf.Grow(len(b))
+
+	var inSgr bool
+	for i, v := range b {
+		if inSgr {
+			if v == sgrTerminator {
+				inSgr = false
+			}
+
+			continue
+		}
+
+		if bytes.HasPrefix(b[i:], csiBytes) {
+			inSgr = true
+			continue
+		}
+
+		buf.WriteByte(v)
+	}
+
+	return buf.Bytes()
 }
 
 const (
@@ -134,20 +172,4 @@ func FgTrueColor(r, g, b uint8) SGR {
 // BgTrueColor creates a SGR that sets the background color to the true color value given with r, g, b.
 func BgTrueColor(r, g, b uint8) SGR {
 	return SGR(fmt.Sprintf("48;2;%d;%d;%d", r, g, b))
-}
-
-// Format applies sgr to s and returns the resulting string.
-func Format(sgr SGR, s string) string {
-	var buf strings.Builder
-	buf.Grow(len(s) + len(sgr) + len(ResetAll) + 6)
-
-	buf.WriteString(Escape(sgr))
-	buf.WriteString(s)
-	buf.WriteString(Escape(ResetAll))
-	return buf.String()
-}
-
-// Formatf works like Format with fmt.Sprintf applied to format and args before.
-func Formatf(sgr SGR, format string, args ...any) string {
-	return Format(sgr, fmt.Sprintf(format, args...))
 }

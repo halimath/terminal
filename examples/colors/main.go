@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/halimath/terminal"
-	"github.com/halimath/terminal/csi"
 	"github.com/halimath/terminal/sgr"
 )
 
@@ -56,37 +55,27 @@ func main() {
 			panic(err)
 		}
 
-		t.WriteString(csi.ClearScreen)
-		t.Print(csi.SetCursorPosition(1, 1))
-
 		fmt.Fprintf(t, "Screen size:\t\t%dx%d", w, h)
+		fmt.Fprintln(t)
 	}
-
-	t.Print(csi.MoveCursorBackward(200))
-	t.Print(csi.MoveCursorDown(1))
 
 	t.WriteString("Background Colors:\t")
 	for _, c := range bgColors {
-		sgr.Print(t, c, "   ")
+		fmt.Fprint(t, c.Apply("   "))
 	}
 
-	t.Print(csi.MoveCursorBackward(200))
-	t.Print(csi.MoveCursorDown(1))
-
+	fmt.Fprintln(t)
 	t.WriteString("Foreground Colors:\t")
 	for _, c := range fgColors {
-		sgr.Print(t, c, "aBc")
+		fmt.Fprint(t, c.Apply("aBc"))
 	}
 
-	t.Print(csi.MoveCursorBackward(200))
-	t.Print(csi.MoveCursorDown(1))
-
+	fmt.Fprintln(t)
 	t.WriteString("ANSI Color:\t\t")
-	sgr.Print(t, sgr.Join(sgr.BgRGB(5, 0, 0), sgr.FgRGB(0, 3, 3)), "This should be printed green on red")
+	fmt.Fprint(t, sgr.BgRGB(5, 0, 0).Join(sgr.FgRGB(0, 3, 3)).Apply("This should be printed green on red"))
 
-	t.Print(csi.MoveCursorBackward(200))
-	t.Print(csi.MoveCursorDown(1))
-
+	fmt.Fprintln(t)
 	fmt.Fprintf(t, "TrueColor [%v]:\t", terminal.IsTruecolorSupported())
-	sgr.Print(t, sgr.Join(sgr.BgTrueColor(120, 0, 0), sgr.FgTrueColor(0, 120, 120)), "This should be printed green on red")
+	fmt.Fprint(t, sgr.BgTrueColor(120, 0, 0).Join(sgr.FgTrueColor(0, 120, 120)).Apply("This should be printed green on red"))
+	fmt.Fprintln(t)
 }

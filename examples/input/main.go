@@ -45,19 +45,19 @@ func main() {
 	t.WriteString(csi.ClearScreen)
 	t.Print(csi.SetCursorPosition(1, 1))
 
-	sgr.Print(t, sgr.Bold, "github.com/halimath/termx input example application")
+	t.Print(sgr.Bold.Apply("github.com/halimath/termx input example application"))
 	t.Print(csi.MoveCursorBackward(200))
 	t.Print(csi.MoveCursorDown(1))
 
 	t.Printf("Application Mode: %s; Alternative Buffer: %s, Mouse Tracking: %s",
-		sgr.Formatf(sgr.Bold, "%v", *useApplicationMode),
-		sgr.Formatf(sgr.Bold, "%v", *useAlternateScreenBuffer),
-		sgr.Formatf(sgr.Bold, "%v", *enableMouse),
+		sgr.Bold.Applyf("%v", *useApplicationMode),
+		sgr.Bold.Applyf("%v", *useAlternateScreenBuffer),
+		sgr.Bold.Applyf("%v", *enableMouse),
 	)
 	t.Print(csi.MoveCursorBackward(200))
 	t.Print(csi.MoveCursorDown(1))
 
-	sgr.Print(t, sgr.Faint, "Press any key to see its internal representation; press C-x to display Bg color info; press C-c to quit")
+	t.Print(sgr.Faint.Apply("Press any key to see its internal representation; press C-x to display Bg color info; press C-c to quit"))
 	t.Print(csi.MoveCursorBackward(200))
 	t.Print(csi.MoveCursorDown(1))
 
@@ -65,9 +65,17 @@ func main() {
 		evt, raw, err := t.ReadInputEvent()
 
 		t.Print(csi.MoveCursorBackward(200))
-		t.WriteString(csi.ClearLine)
+		t.Print(csi.ClearLine)
 
-		t.Printf("%s %#v %v", evt, raw, err)
+		t.Print(sgr.FgCyan.Apply(evt))
+		t.Print(" ")
+		t.Print(raw)
+		t.Print(" ")
+		if err != nil {
+			t.Print(sgr.FgRed.Apply(err))
+		} else {
+			t.Print(sgr.Faint.Apply("<no error>"))
+		}
 
 		if evt == input.Ctrl('c') || evt == input.Char('q') {
 			break
@@ -81,7 +89,7 @@ func main() {
 
 			t.Print(csi.MoveCursorBackward(200))
 			t.Print(csi.MoveCursorDown(1))
-			t.WriteString(csi.ClearLine)
+			t.Print(csi.ClearLine)
 			t.Printf("(%d, %d, %d) %v", r, g, b, err)
 			t.Print(csi.MoveCursorUp(1))
 		}
@@ -91,7 +99,7 @@ func main() {
 
 			t.Print(csi.MoveCursorBackward(200))
 			t.Print(csi.MoveCursorDown(1))
-			t.WriteString(csi.ClearLine)
+			t.Print(csi.ClearLine)
 			t.Printf("(%d,%d) %v", x, y, err)
 			t.Print(csi.MoveCursorUp(1))
 		}
